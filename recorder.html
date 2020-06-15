@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+	line-height: 1.5;
+	font-family: sans-serif;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	color:black; margin:2em;
+}
+
+video {
+  background: #222;  margin-left: 5%;
+  width: 80%;  height: 500px;; 
+}
+
+button {
+  flex-grow: 1;  height: 2rem;  min-width: 1rem;
+  border: none;  border-radius: 0.5rem;
+  background: #ed341d;  box-shadow: inset 0 -0.15rem 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer; justify-content: center;  align-items: center;
+  color:#ffffff;  font-weight: bold;  font-size: 1wv;
+}
+button:hover, button:focus {
+  outline: none;
+  background: #c72d1c;
+}
+
+button:disabled {
+  pointer-events: none;
+  background: lightgray;
+}
+ #overlay {
+ 
+  position: absolute; 
+  top: 100px; 
+  background-color: rgba(221, 221, 221, 0.3);
+  width: 200px;
+  height:200px;
+  z-index: 2147483647;
+}
+
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Recorder API - kk Classes</title>       
+</head>
+<body>
+      <div id="controls" style="margin-left:5%; margin-top:-20px;">
+	        Note: It works in recent version (50+) of Chrome/Mozilla browser!!! &nbsp;&nbsp;
+			<span style="color:red;" id="info">Initialise video recorder... </span> <br>
+		   <button id="init" onclick="onBtnInitialiseClicked()">Initialise Media</button>
+			<button id="rec" onclick="onBtnRecordClicked()" disabled>Record cam</button>
+			<button id="pauseRes"   onclick="onPauseResumeClicked()" disabled>Pause</button>
+			<button id="stop"  onclick="onBtnStopClicked()" disabled>Stop</button>
+			<button id="present"  onclick="onBtnPresentClicked()" disabled >Record Screen</button>
+           
+			<span style="color:red;" class="stopwatch">00:00:00</span>	||		
+			<a id="downloadLink" download="mediarecorder.webm" name="mediarecorder.webm" href>Download</a>
+		</div>
+		<video id="recording" autoplay muted controls></video>
+        <video id="screen" autoplay muted controls style="display:none;"></video> 		
+		<video id="recorded" controls style="display:none;" ></video>
+	
+	<p id="data"></p>
+	
+<script type="text/javascript">
+var constraints = { audio:true,
+                   video: true//{//width:{min:320,ideal:320,max:640 },
+				           //height:{ min:240,ideal:240,max:480},
+						  // framerate:30   }
+				  };
+
+var recBtn = document.querySelector('button#rec');
+var pauseResBtn = document.querySelector('button#pauseRes');
+var stopBtn = document.querySelector('button#stop');
+var presentBtn = document.querySelector('button#present');
+var videoElement = document.getElementById("recording");
+var dataElement = document.querySelector('#data');
+var infoElement= document.getElementById('info');
+var downloadLink = document.querySelector('a#downloadLink');
+var recording = document.getElementById("recorded");
+var screen = document.getElementById("screen");
+
+var mediaRecorder=null;
+var screenRecorder=null;
+var chunks = []; var chunks1 = [];var chunks2 = [];var index1 = [];var index2 = [];
+var count = 0;   var i=0; var j=0;
+var blob; var which=1; //1  camear, 2 for scree
+var soundMeter  = null;
+let mediaStream=null;
+var options = {mimeType: 'video/webm;codecs="vp8,opus"'};
+let desktopStream=new MediaStream();
+let kkStream = new MediaStream();   //localStream
+let AudioTrack;
+let VideoTrack;
+//............................................................
+function onBtnInitialiseClicked()
+ {
+  if (!navigator.mediaDevices.getUserMedia){
+	 alert('MediaRecorder not supported on your browser, use the latest version of Firefox or Chrome');
+     }
+   else
+    {  navigator.mediaDevices.getUserMedia(constraints)
+			.then(function(stream) {
+				videoElement.srcObject = stream;
+				 AudioTrack = stream.getAudioTracks()[0];
+			     VideoTrack = stream.getVideoTracks()[0];
+				 // VideoTrack = videoElement.captureStream().getVideoTracks()[0];
+                  
+				 kkStream = stream;
+				 magnifyVolume();
+				AudioTrack = kkStream.getAudioTracks()[1];//amplified audio track
+				kkStream = new MediaStream([VideoTrack, AudioTrack]);
+				videoElement.srcObject = kkStream;
+				
+		        videoElement.play();
+				
+		  kkStream.getTracks().forEach(function(track)
+     		  { log(track.kind+":"+JSON.stringify(track.getSettings()));
+		       });		
+		  kkStream.getTracks().forEach(function(track) 
+			     {
+                   if(track.kind == "audio"){log("Audio track.readyState="+track.readyState);}
+                   if(track.kind == "video"){log("Video track.readyState="+track.readyState);}		
+				  });											
+			   }).catch(function(err) {
+				log('navigator.getUserMedia error: '+err);
+           });	
+		setOptions();
+		recBtn.disabled = false; presentBtn.disabled = false;
+ }  }
+//......................This is called when recorder stopped.....................................................
+function onBtnRecordClicked ()
+  { videoElement.style.display = "block";
+	recording.style.display = "none";
+	which=1;  chunks1=[]; chunks=[];
+	if (kkStream == null) {
+		alert('Could not get kk stream from mic/camera');
+	   }
+	else 
+	 {
+		recBtn.disabled = true; pauseResBtn.disabled = false; 
+		stopBtn.disabled = false; presentBtn.disabled = true;
+       	log('Start recording...');
+	    videoElement.play();
+       mediaRecorder = new MediaRecorder(kkStream, options);
+        RecordCam();
+	    mediaRecorder.start(30);   
+		stopwatch.restart();
+		
+	 }
+  } 
+ //......................................................................
+function RecordCam()
+{  
+   infoElement.innerHTML = 'Recording in proress...';
+   mediaRecorder.ondataavailable = function(e) {
+			console.log('mediaRecorder.ondataavailable, e.data.size='+e.data.size);
+			chunks1.push(e.data); 
+		};
+  
+	mediaRecorder.onpause = function(e){
+			log('mediaRecorder.onpause ' + mediaRecorder.state);
+			//chunks.push(mediaRecorder.requestData());
+		};
+	mediaRecorder.onerror = function(e){
+			log('mediaRecorder.onerror: ' + e);
+		};
+
+	mediaRecorder.onstart = function(){
+		log('mediaRecorder.onstart, mediaRecorder.state = ' + mediaRecorder.state);
+		};
+	mediaRecorder.onstop = function()
+	    {  
+			log('mediaRecorder.onstop, mediaRecorder.state = ' + mediaRecorder.state);	
+		};
+	mediaRecorder.onwarning = function(e){
+			log('mediaRecorder.onwarning: ' + e);
+		};
+    }
+//..................................................................................
+function onBtnStopClicked(){
+	infoElement.innerHTML = 'Recording stopped';
+	StopRecorder();
+	stopwatch.stop();
+	//videoElement.pause();
+	 pauseResBtn.disabled = true;	stopBtn.disabled = true;
+	 recBtn.disabled = false;presentBtn.disabled = false;
+	//mergeChunks(chunks1,chunks2);
+	if(which==1) chunks=chunks1; else chunks=chunks2;
+	        blob = new Blob(chunks, {type: options.mimeType});			
+			var videoURL = window.URL.createObjectURL(blob);
+			recording.src = URL.createObjectURL(blob);
+			downloadLink.href = videoURL;
+			downloadLink.innerHTML = 'Download video file';
+			var rand =  Math.floor((Math.random() * 1000));
+			var name  = "video_"+rand+".webm" ;
+			console.log("file name:"+name);
+			downloadLink.setAttribute( "download", name);
+			downloadLink.setAttribute( "name", name);
+			console.log("chunk length:"+chunks.length);
+	videoElement.style.display = "none";
+	screen.style.display = "none";
+	recording.style.display = "block";
+}
+//.......................................................................
+function onPauseResumeClicked(){
+	if(pauseResBtn.textContent === "Pause"){
+		infoElement.innerHTML = 'Recording in paused!!!';
+		pauseResBtn.textContent = "Resume";
+		PauseRecorder();
+		stopwatch.stop();
+		//videoElement.play();
+		stopBtn.disabled = true;
+	}else{
+		infoElement.innerHTML = 'Recording in Resumed &recording in Proress';
+		ResumeRecorder();
+		stopwatch.start();
+		pauseResBtn.textContent = "Pause";
+		//videoElement.pause();
+		stopBtn.disabled = false;
+	}
+	recBtn.disabled = true;
+	pauseResBtn.disabled = false;
+}
+
+//......................................................................................
+function log(message){
+	dataElement.innerHTML = dataElement.innerHTML+'<br>'+message ;
+	console.log(message)
+}
+//........................................................................................
+function onBtnPresentClicked()
+{ if (!navigator.mediaDevices.getDisplayMedia){
+	 alert('DisplayRecorder not supported on your browser, use the latest version of Firefox or Chrome');
+     }
+  else{
+	   videoElement.style.display = "none";	   recording.style.display = "none";
+	   screen.style.display = "block"; which=2; chunks2=[];
+	   pauseResBtn.disabled = false; stopBtn.disabled = false;
+	    recBtn.disabled = true; presentBtn.disabled = true;
+		stopwatch.restart(); chunks=[];  popup('view.html'); console.log("popup here...");
+      navigator.mediaDevices.getDisplayMedia( 
+          {video: true
+	       //,audio:true
+		   }).then(stream1 => {               
+			mediaStream = new MediaStream([stream1.getVideoTracks()[0], AudioTrack]);			
+			screen.srcObject = mediaStream;
+			screen.play();
+			//chunks.push(mediaRecorder.requestData()); //............................
+			if(mediaRecorder!=null)
+			 {if(mediaRecorder.state=="recording"||mediaRecorder.state=="paused")
+				mediaRecorder.requestData();
+			    index1[i++]=chunks1.length;
+			 }   
+			 
+			
+				
+			screenRecorder = new MediaRecorder(mediaStream, options);
+            RecordScreen(screenRecorder);
+	        screenRecorder.start(30); 
+			
+          }, error => {
+                      alert("Unable to acquire screen capture", error);
+            });	
+       	    
+   }}
+ //......................................................................
+function RecordScreen(screenRecorder)
+{  
+   screenRecorder.ondataavailable = function(e) {
+			console.log('screenRecorder.ondataavailable, e.data.size='+e.data.size);
+			chunks2.push(e.data); 
+		};
+ 	screenRecorder.onerror = function(e){
+			log('screenRecorder.onerror: ' + e);
+		};
+	screenRecorder.onstart = function(){
+		log('screenRecorder.onstart, mediaRecorder.state = ' + screenRecorder.state);
+		};
+	screenRecorder.onstop = function()
+	    {   
+			log('screenRecorder.onstop, mediaRecorder.state = ' + screenRecorder.state);	
+		};
+	screenRecorder.onwarning = function(e){
+			log('screenRecorder.onwarning: ' + e);
+		};
+    }
+//...............................................................
+function mergeChunks(ch1,ch2)
+{	//Blob b1 = new Blob(ch1, {type: options.mimeType});
+	//Blob b1 = new Blob(ch2, {type: options.mimeType});
+	//String combinedDataAsHex = EncodingUtil.base64Encode(b1) + EncodingUtil.base64Encode(b2);
+	//chunks = EncodingUtil.base64Decode(combinedDataAsHex);
+	//chunks=(chunks1.slice(1,index1[0])).concat(chunks2);
+	chunks=[...ch1.slice(1,index1[0]),...ch2];
+}
+//...................................................
+function setOptions()
+{ 	//........................................................
+	  if (typeof MediaRecorder.isTypeSupported == 'function')
+		  {			
+			if (MediaRecorder.isTypeSupported('video/webm;codecs="vp9 , opus"')) {
+			   options = {mimeType: 'video/webm;codecs="vp9,opus"'};
+			} else  if (MediaRecorder.isTypeSupported('video/webm;codecs="h264,opus"')) {
+			   options = {mimeType: 'video/webm;codecs="h264,opus"'};
+			}
+			log('Using '+options.mimeType);	
+            			
+		 } 
+ }
+ //..................................................
+ function StopRecorder()
+ {if(mediaRecorder!=null)
+	{if( mediaRecorder.state=="recording"|| mediaRecorder.state=="paused")
+  		mediaRecorder.stop();
+	}	
+	if(screenRecorder!=null)
+	  { if( screenRecorder.state=="recording"|| screenRecorder.state=="paused") 
+	       screenRecorder.stop();
+     }
+ }
+ //.....................................................
+  function PauseRecorder()
+    {if(mediaRecorder!=null)
+	  {if( mediaRecorder.state=="recording")
+  		mediaRecorder.pause();
+	}	
+	if(screenRecorder!=null)
+	  { if( screenRecorder.state=="recording") 
+	       screenRecorder.pause();
+     }
+   }
+ //...............................................................
+   function ResumeRecorder()
+    {if(mediaRecorder!=null)
+	  {if( mediaRecorder.state=="paused")
+  		mediaRecorder.resume();
+	}	
+	if(screenRecorder!=null)
+	  { if( screenRecorder.state=="paused") 
+	       screenRecorder.resume();
+     }
+   }
+   //.............................................
+ 
+// <button id="release"  onclick="Release()"> Release Media</button>
+function Release()
+{ if (mediaStream!=null)
+	{const tracks = mediaStream.getTracks();
+     tracks.forEach(function(track) {track.stop();});
+	}
+if (screenStream!=null)
+	{ const tracks = screenStream.getTracks();
+     tracks.forEach(function(track) {track.stop();});
+	}
+}
+//.............................................................................
+function magnifyVolume()
+{
+    var audioCtx = new AudioContext();
+     var source = audioCtx.createMediaStreamSource(kkStream);
+        // Create a biquadfilter
+     var biquadFilter = audioCtx.createBiquadFilter();
+     biquadFilter.type = "lowshelf";
+     biquadFilter.frequency.value = 1000;
+     biquadFilter.gain.value = 1;
+       // connect the AudioBufferSourceNode to the gainNode
+        // and the gainNode to the destination, so we can play the
+        // music and adjust the volume using the mouse cursor
+     source.connect(biquadFilter);
+	 var destination = audioCtx.createMediaStreamDestination();
+     biquadFilter.connect(destination);	
+	 var audioTracks = destination.stream.getAudioTracks();
+	 	 
+	  for (var i=0; i < audioTracks.length; i++){kkStream.addTrack(audioTracks[i]);} 
+            // stream the canvas with the added audio tracks
+	//kkStream.getTracks().forEach(function(track)
+    // 		  { log(track.kind+":"+JSON.stringify(track.getSettings()));
+	//	 });		
+   
+}
+//.......................................................................
+class Stopwatch {
+    constructor(display) {
+        this.running = false;
+        this.display = display;
+        this.results =' ';
+        this.laps = [];
+        this.reset();
+        this.print(this.times);
+    }
+    
+    reset() {
+        this.times = [ 0, 0, 0 ];
+    }
+   //.............................................. 
+    start() {
+        if (!this.time) this.time = performance.now();
+        if (!this.running) {
+            this.running = true;
+            requestAnimationFrame(this.step.bind(this));
+        }
+    }
+    
+  stop() { this.running = false; this.time = null; }
+
+    restart() {
+        if (!this.time) this.time = performance.now();
+        if (!this.running) {
+            this.running = true;
+            requestAnimationFrame(this.step.bind(this));
+        }
+        this.reset();
+    }
+  //.........................................  
+   step(timestamp) {
+        if (!this.running) return;
+        this.calculate(timestamp);
+        this.time = timestamp;
+        this.print();
+        requestAnimationFrame(this.step.bind(this));
+    }
+    
+    calculate(timestamp) {
+        var diff = timestamp - this.time;
+        // Hundredths of a second are 100 ms
+        this.times[2] += diff / 10;
+        // Seconds are 100 hundredths of a second
+        if (this.times[2] >= 100) {
+            this.times[1] += 1;
+            this.times[2] -= 100;
+        }
+        // Minutes are 60 seconds
+        if (this.times[1] >= 60) {
+            this.times[0] += 1;
+            this.times[1] -= 60;
+        }
+    }
+    
+    print()
+	{
+        this.display.innerText = this.format(this.times);
+    }
+    
+ format(times) {
+        return `\
+${pad0(times[0], 2)}:\
+${pad0(times[1], 2)}:\
+${pad0(Math.floor(times[2]), 2)}`;
+    }
+}
+
+function pad0(value, count) {
+    var result = value.toString();
+    for (; result.length < count; --count)
+        result = '0' + result;
+    return result;
+}
+
+let stopwatch = new Stopwatch(
+    document.querySelector('.stopwatch'));
+//.............................................................................
+function popup(url) 
+{ 
+ var width  = 500; ;
+ var height = 500; //screen.height;
+ var left   = 10; var top    = 10; //screen.height*(3/4);
+ var params = 'width='+width+', height='+height;
+// params += ', directories=no, location=no, menubar=no,toolbar=no, resizable=no, status=0';
+ params += ', scrollbars=no, close=no,  alwaysOnTop=yes';
+ params += ',screenX='+left+',screenY='+top;
+ params+=',opacity=0.5 , z-index =150';
+ newwin=window.open("view.html",'kk', params);
+ 
+ var html='<body><video id="view" autoplay="true" muted="true" controls="true" style="width:100%; heigth:100%; margin-left:0px;margin-top:0px;" ><\/video> '+		
+	'<script type="text/javascript">var view=document.getElementById("view");'+	
+	 'if (!navigator.mediaDevices.getUserMedia){ alert("Media is busy....");  }'+
+	 'else{  navigator.mediaDevices.getUserMedia({ audio:false,video: true}).then(function(stream)'+
+	 '{view.srcObject = stream;});}<\/script>'; 
+ 
+ //newwin.document.body.outerHTML = html;  //< p> Hello KK!!!</p>
+ 
+ return false;
+}
+//.........................................................................	
+	</script>	
+
+	
+
+</body>
+</html>

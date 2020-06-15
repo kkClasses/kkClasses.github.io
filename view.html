@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script type="text/javascript" src="jquery.min.js"></script>
+</head>
+<body> 
+ <canvas id="canvas" style="display:none;"> </canvas>
+ <textarea id="txt" style="display:none; ">Hello... </textarea>
+ 
+<video id="view" autoplay muted controls 
+style="width:100%;resize:both;" ></video> 		
+ </td>
+ <div>
+  <iframe name="display" id="display"  style="display:none; height:auto; width:auto;"
+	  src="#" frameborder="0" 
+	  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+	  allowfullscreen="true" mozallowfullscreen="true"  webkitallowfullscreen="true">
+</iframe>
+</div>
+<div id="head1" style="margin-top:1px; position:absolute; z-index:330;">
+   <button onclick="topView('view')">Cam</button><button onclick="topView('both')">Both</button>
+  <button onclick="addContent('url')">Add PPT/PDF/Doc(from Goole Drive)</button>
+   <button onclick="draw()">Pen</button>
+   <button onclick="clear1()">Clear</button>
+   <button onclick="txtOverlay()">TextOverlay</button>
+ </div>
+  
+
+ 
+  <div id="url" style="background-color:rgb(204, 221, 238); display:none;">
+          Syllabus/Lecture Plan/Preamble
+		   <input type="text" id="Preamble_url" placeholder="Enter URL"><br>
+		 URL Format(pdf/word/sheet/text):https://docs.google.com/file/d/
+		 <font color="red">1KYymAkyVZe2fSulVUlkbdRA6vmGokkMqEMXDIVF16fA</font>/preview?embedded=true<br>
+		 <font color="red">Note: Red color text is the doc/video id </font><br>		 
+          <input type="text" id="Preamble_topic" placeholder="Title/Topic"><br>			  	
+      <button onclick="Display()"> Ok </button> 
+	  <button onclick="Cancel('url')"> Cancel </button>
+ </div>
+
+	<script>
+	//..................................................................
+function Cancel(id){
+  document.getElementById(id).style.display = "none";
+	}
+//.........................................................
+function addContent(id)
+ { console.log("id="+id);
+  var idd=document.getElementById(id);
+  idd.style.display = "block";
+  idd.setAttribute("style", 
+  "position:absolute; top:50px;left:20px; z-index:350;");
+           
+ }
+//...........................................................................
+function Display()
+{	
+	var purl=document.getElementById('Preamble_url').value; 
+	var title=document.getElementById('Preamble_topic').value;  console.log("topic:"+title);
+	 var idd=Math.ceil(Math.random() * 100);
+	var s='<button onclick="topView(`display`)">'+title+'</button>';
+	d.src=purl;
+	//var s='<a href="'+purl+'" target="display" onclick="topView(`display`)"> &nbsp;'+title+'</a>';
+	$('#head1').prepend(s);
+	document.getElementById('url').style.display = "none";
+}
+
+//..............................................................
+
+	var view=document.getElementById('view');
+	
+ //  if (!navigator.mediaDevices.getUserMedia){ alert('Media is busy....');  }
+  // else
+      {  navigator.mediaDevices.getUserMedia({ audio:false,video: true})
+			.then(function(stream) {
+				view.srcObject = stream;
+				});
+		}
+//............................................................
+	var d=document.getElementById('display');
+	var v=document.getElementById('view');
+function topView(id)
+	 {  if (id=='display')
+	     { d.style.display = "block";
+		   d.setAttribute("style", "width:100%;height:600px;"+
+			  "position:absolute; margin-top:0px;margin-left:0px;");
+	       v.style.display = "none";
+		  }
+		if (id=='view')
+		    { v.style.display = "block";
+			  v.setAttribute("style", "width:100%; height:100%; z-index:200;"+
+			  "resize:both;position:absolute; margin-top:5px;margin-left:5px;");
+	          d.style.display = "none";
+		    }
+		if (id=='both')
+		    { d.style.display = "block";
+			  d.setAttribute("style", "width:100%;height:100%;"+
+			  "position:absolute; margin-top:-5px;margin-left:0px;");
+	          v.style.display = "block";
+			  v.setAttribute("style","width:100px; height:300px;z-index:200; resize:both;"+
+			  "position:absolute; margin-top:px;margin-left:1px;");
+		    } //background-color: transparent;
+	 }
+//.........................................................................
+var txtOver=document.getElementById("txt");
+ function txtOverlay()
+ { 
+ canvas.setAttribute("style", "display:none;");
+ txtOver.setAttribute("style",
+  "display:block; position:absolute; margin-top:10px;margin-left:10px;"+
+  "rows=30; cols=50; background:transparent;z-index:320;color:red; font-size:4vw;");
+ 
+ }
+ //..................................................
+var canvas, ctx; 
+canvas = document.getElementById("canvas");
+    ctx = canvas.getContext("2d");
+    painting = false;
+    lastX = 0;  lastY = 0
+    lineThickness = 2;
+	canvas.width = canvas.height = 600;
+function draw()
+{  canvas.setAttribute("style",
+  "display:block; position:absolute; margin-top:10px;margin-left:10px;"+
+  "background:transparent;z-index:320;");
+  txtOver.setAttribute("style","display:none;");
+ }
+canvas.onmousedown = function(e)
+ {
+    painting = true;
+    ctx.fillStyle = "#ff1111";
+    lastX = e.pageX - this.offsetLeft;
+    lastY = e.pageY - this.offsetTop;
+};
+canvas.onmouseup = function(e){
+    painting = false;
+};
+function clear1() {
+        ctx.clearRect(0, 0, 500, 500);
+		canvas.setAttribute("style", "display:none;");
+		txtOver.setAttribute("style", "display:none;");
+		txtOver.value="";
+}
+canvas.onmousemove = function(e) {
+    if (painting) {
+        mouseX = e.pageX - this.offsetLeft;
+        mouseY = e.pageY - this.offsetTop;
+
+        // find all points between        
+        var x1 = mouseX,
+            x2 = lastX,
+            y1 = mouseY,
+            y2 = lastY;
+
+
+        var steep = (Math.abs(y2 - y1) > Math.abs(x2 - x1));
+        if (steep){
+            var x = x1;
+            x1 = y1; y1 = x;
+
+            var y = y2;
+            y2 = x2;  x2 = y;
+        }
+        if (x1 > x2) {
+            var x = x1;
+            x1 = x2; x2 = x;
+
+            var y = y1;
+            y1 = y2;  y2 = y;
+        }
+
+        var dx = x2 - x1,
+            dy = Math.abs(y2 - y1),
+            error = 0,
+            de = dy / dx,
+            yStep = -1,
+            y = y1;
+        
+        if (y1 < y2) {
+            yStep = 1;
+        }
+       
+        lineThickness = 2 ;
+        //- Math.sqrt((x2 - x1) *(x2-x1) + (y2 - y1) * (y2-y1))/10;
+       // if(lineThickness < 1){  lineThickness = 1;   }
+
+        for (var x = x1; x < x2; x++) {
+            if (steep) {
+                ctx.fillRect(y, x, lineThickness , lineThickness );
+            } else {
+                ctx.fillRect(x, y, lineThickness , lineThickness );
+            }
+            
+            error += de;
+            if (error >= 0.5) {
+                y += yStep;
+                error -= 1.0;
+            }
+        }
+        lastX = mouseX;  lastY = mouseY;
+
+    }
+}
+
+
+//..........................................................................
+	</script>
+	 
+</body>
+</html>
