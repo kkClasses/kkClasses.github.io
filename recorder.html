@@ -241,7 +241,7 @@ function onBtnPresentClicked()
 	   screen.style.display = "block"; which=2; chunks2=[];
 	   pauseResBtn.disabled = false; stopBtn.disabled = false;
 	    recBtn.disabled = true; presentBtn.disabled = true;
-		stopwatch.restart(); chunks=[];  popup('view.html'); console.log("popup here...");
+		stopwatch.restart(); chunks=[];  
       navigator.mediaDevices.getDisplayMedia( 
           {video: true
 	       //,audio:true
@@ -264,7 +264,7 @@ function onBtnPresentClicked()
 			
           }, error => {
                       alert("Unable to acquire screen capture", error);
-            });	
+            });	 popup('view.html'); console.log("popup here...");
        	    
    }}
  //......................................................................
