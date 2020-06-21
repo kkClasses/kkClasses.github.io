@@ -191,6 +191,7 @@ function onBtnStopClicked(){
 	 recBtn.disabled = false;presentBtn.disabled = false;
 	 presentBtn1.disabled = true;
 	//mergeChunks(chunks1,chunks2);
+	
 	if(which==1) chunks=chunks1; else chunks=chunks2;
 	        blob = new Blob(chunks, {type: options.mimeType});			
 			var videoURL = window.URL.createObjectURL(blob);
