@@ -2,58 +2,71 @@
 <html>
 <head>
 <style>
-
+button {font-size:2vw;}
 </style>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script type="text/javascript" src="jquery.min.js"></script>
 </head>
-<body> 
- <canvas id="canvas" style="display:none;"> </canvas>
- <textarea id="txt" style="display:none; ">Hello... </textarea>
- 
-<video id="view" autoplay muted controls 
-style="width:100%;resize:both;" ></video> 		
- </td>
- <div>
-  <iframe name="display" id="display"  style="display:none; height:auto; width:auto;"
-	  src="#" frameborder="0" 
-	  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-	  allowfullscreen="true" mozallowfullscreen="true"  webkitallowfullscreen="true">
-</iframe>
-</div>
-<div id="head1" style="margin-top:1px; position:absolute; z-index:330;">
-   <button onclick="topView('view')">Cam</button><button onclick="topView('both')">Both</button>
+<body > 
+<div id="head1" style="width:100%; position:absolute;margin-top:-1px; z-index:300;">
+   <button onclick="topView('view')">Cam</button>
+   <button onclick="topView('both')">Both</button>
   <button onclick="addContent('url')">Add PPT/PDF/Doc(from Goole Drive)</button>
    <button onclick="draw()">Pen</button>
    <button onclick="clear1()">Clear</button>
    <button onclick="txtOverlay()">TextOverlay</button>
  </div>
-  
+ 
+<div id="view" style="height:400px; width:500px; resize:both; position:absolute;z-index:250; margin-top:20px;margin-left:1px;">
+     <video id="view1" autoplay muted controls  style="height:100%;width:100%; border:none;" > </video> 	
+ </div>
+ <div id="fdisplay" style="height:400px;width:500px;resize:both; z-index:150; position:absolute; margin-top:15px;margin-left:1px; ">
+  <iframe id="display1"  style="position: absolute; height: 100%;  width:100%;"
+  src="_blank"   allowfullscreen="true" mozallowfullscreen="true"  webkitallowfullscreen="true">
+  </iframe>
+</div>
+ 
+ 
+  <canvas id="canvas" style="display:none;"> </canvas>
+ 
+ <textarea id="txt" style="display:none; ">Hello... </textarea> 
 
  
   <div id="url" style="background-color:rgb(204, 221, 238); display:none;">
           Syllabus/Lecture Plan/Preamble
 		   <input type="text" id="Preamble_url" placeholder="Enter URL"><br>
-		 URL Format(pdf/word/sheet/text):https://docs.google.com/file/d/
-		 <font color="red">1KYymAkyVZe2fSulVUlkbdRA6vmGokkMqEMXDIVF16fA</font>/preview?embedded=true<br>
+		 URL Format(pdf/word/sheet/text):https://docs.google.com/file/d/1KYymAkyVZe2fSulVUlkbdRA6vmGokkMqEMXDIVF16fA/preview?embedded=true<br>
 		 <font color="red">Note: Red color text is the doc/video id </font><br>		 
           <input type="text" id="Preamble_topic" placeholder="Title/Topic"><br>			  	
       <button onclick="Display()"> Ok </button> 
 	  <button onclick="Cancel('url')"> Cancel </button>
- </div>
+  </div>
 
-	<script>
-	//..................................................................
-function Cancel(id){
-  document.getElementById(id).style.display = "none";
-	}
+<script>
+//..................................................................
+
+var d, v, view,view1;
+
+$( document ).ready(function() {
+    v=document.getElementById('view');
+	view1=document.getElementById('view1');
+	 d=document.getElementById('fdisplay');
+  if (!navigator.mediaDevices.getUserMedia){ alert('Media is busy....');  }
+   else
+      {  navigator.mediaDevices.getUserMedia({ audio:false,video: true})
+			.then(function(stream) {
+				view1.srcObject = stream;
+				});
+			view1.play();
+		}
+	});
+
 //.........................................................
 function addContent(id)
  { console.log("id="+id);
   var idd=document.getElementById(id);
   idd.style.display = "block";
-  idd.setAttribute("style", 
-  "position:absolute; top:50px;left:20px; z-index:350;");
+  idd.setAttribute("style", "position:absolute; top:50px;left:20px; z-index:350;");
            
  }
 //...........................................................................
@@ -62,47 +75,31 @@ function Display()
 	var purl=document.getElementById('Preamble_url').value; 
 	var title=document.getElementById('Preamble_topic').value;  console.log("topic:"+title);
 	 var idd=Math.ceil(Math.random() * 100);
-	var s='<button onclick="topView(`display`)">'+title+'</button>';
-	d.src=purl;
+	var s='<button onclick="topView(`fdisplay`)">'+title+'</button>';
+	var dd=document.getElementById("display1");
+	dd.src=purl;
 	//var s='<a href="'+purl+'" target="display" onclick="topView(`display`)"> &nbsp;'+title+'</a>';
 	$('#head1').prepend(s);
 	document.getElementById('url').style.display = "none";
 }
 
-//..............................................................
-
-	var view=document.getElementById('view');
-	
- //  if (!navigator.mediaDevices.getUserMedia){ alert('Media is busy....');  }
-  // else
-      {  navigator.mediaDevices.getUserMedia({ audio:false,video: true})
-			.then(function(stream) {
-				view.srcObject = stream;
-				});
-		}
 //............................................................
-	var d=document.getElementById('display');
-	var v=document.getElementById('view');
+
 function topView(id)
-	 {  if (id=='display')
+	 {  if (id=='fdisplay')
 	     { d.style.display = "block";
-		   d.setAttribute("style", "width:100%;height:600px;"+
-			  "position:absolute; margin-top:0px;margin-left:0px;");
-	       v.style.display = "none";
+		   v.style.display = "none";
 		  }
 		if (id=='view')
-		    { v.style.display = "block";
-			  v.setAttribute("style", "width:100%; height:100%; z-index:200;"+
-			  "resize:both;position:absolute; margin-top:5px;margin-left:5px;");
-	          d.style.display = "none";
+		    { d.style.display = "none";
+			  v.style.display = "block";
+			 v.setAttribute("style", "height:90%;width:90%;z-index:250;position:absolute; margin-top:10px;margin-left:1px;");
+	          
 		    }
 		if (id=='both')
-		    { d.style.display = "block";
-			  d.setAttribute("style", "width:100%;height:100%;"+
-			  "position:absolute; margin-top:-5px;margin-left:0px;");
-	          v.style.display = "block";
-			  v.setAttribute("style","width:100px; height:300px;z-index:200; resize:both;"+
-			  "position:absolute; margin-top:px;margin-left:1px;");
+		    { d.style.display = "block"; // d.setAttribute("style","z-index:50;position:absolute; margin-top:20px;margin-left:1px;");
+			  v.style.display = "block";
+			  v.setAttribute("style","width:100px; height:100px;z-index:250;position:absolute; margin-top:10px;margin-left:1px;"); 
 		    } //background-color: transparent;
 	 }
 //.........................................................................
@@ -115,6 +112,10 @@ var txtOver=document.getElementById("txt");
   "rows=30; cols=50; background:transparent;z-index:320;color:red; font-size:4vw;");
  
  }
+ //...................................................................................
+ function Cancel(id){
+  document.getElementById(id).style.display = "none";
+	}
  //..................................................
 var canvas, ctx; 
 canvas = document.getElementById("canvas");

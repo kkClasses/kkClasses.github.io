@@ -54,8 +54,8 @@ button:disabled {
 			<button id="rec" onclick="onBtnRecordClicked()" disabled>Record cam</button>
 			<button id="pauseRes"   onclick="onPauseResumeClicked()" disabled>Pause</button>
 			<button id="stop"  onclick="onBtnStopClicked()" disabled>Stop</button>
-			<button id="present"  onclick="onBtnPresentClicked()" disabled >Record Screen</button>
-           
+			<button id="present"  onclick="onBtnPresentClicked()" disabled >DisplayInitialize</button>
+           <button id="present1"  onclick="DisplayStream()" disabled >DisplayStart</button>
 			<span style="color:red;" class="stopwatch">00:00:00</span>	||		
 			<a id="downloadLink" download="mediarecorder.webm" name="mediarecorder.webm" href>Download</a>
 		</div>
@@ -76,6 +76,7 @@ var recBtn = document.querySelector('button#rec');
 var pauseResBtn = document.querySelector('button#pauseRes');
 var stopBtn = document.querySelector('button#stop');
 var presentBtn = document.querySelector('button#present');
+var presentBtn1 = document.querySelector('button#present1');
 var videoElement = document.getElementById("recording");
 var dataElement = document.querySelector('#data');
 var infoElement= document.getElementById('info');
@@ -188,6 +189,7 @@ function onBtnStopClicked(){
 	//videoElement.pause();
 	 pauseResBtn.disabled = true;	stopBtn.disabled = true;
 	 recBtn.disabled = false;presentBtn.disabled = false;
+	 presentBtn1.disabled = true;
 	//mergeChunks(chunks1,chunks2);
 	if(which==1) chunks=chunks1; else chunks=chunks2;
 	        blob = new Blob(chunks, {type: options.mimeType});			
@@ -241,33 +243,34 @@ function onBtnPresentClicked()
 	   screen.style.display = "block"; which=2; chunks2=[];
 	   pauseResBtn.disabled = false; stopBtn.disabled = false;
 	    recBtn.disabled = true; presentBtn.disabled = true;
-		stopwatch.restart(); chunks=[];  
+		chunks=[]; 
       navigator.mediaDevices.getDisplayMedia( 
-          {video: true
+          { video: true
 	       //,audio:true
 		   }).then(stream1 => {               
 			mediaStream = new MediaStream([stream1.getVideoTracks()[0], AudioTrack]);			
 			screen.srcObject = mediaStream;
 			screen.play();
 			//chunks.push(mediaRecorder.requestData()); //............................
-			if(mediaRecorder!=null)
-			 {if(mediaRecorder.state=="recording"||mediaRecorder.state=="paused")
-				mediaRecorder.requestData();
-			    index1[i++]=chunks1.length;
-			 }   
-			 
-			
-				
-			screenRecorder = new MediaRecorder(mediaStream, options);
-            RecordScreen(screenRecorder);
-	        screenRecorder.start(30); 
-			
-          }, error => {
-                      alert("Unable to acquire screen capture", error);
-            });	 popup('view.html'); console.log("popup here...");
-       	    
+          }, error => { alert("Unable to acquire screen capture", error);  });
+		  
+       	popup('view.html'); console.log("popup here...");  
+		presentBtn1.disabled = false;
    }}
  //......................................................................
+ function DisplayStream()
+   { if(mediaRecorder!=null)
+		{if(mediaRecorder.state=="recording"||mediaRecorder.state=="paused")
+				mediaRecorder.requestData();
+			    index1[i++]=chunks1.length;
+		}   				
+		screenRecorder = new MediaRecorder(mediaStream, options);
+        RecordScreen(screenRecorder);
+	    screenRecorder.start(30); 
+		stopwatch.restart();  
+       presentBtn1.disabled = true;		
+   }
+  //........................................................................
 function RecordScreen(screenRecorder)
 {  
    screenRecorder.ondataavailable = function(e) {
@@ -472,7 +475,7 @@ function popup(url)
 // params += ', directories=no, location=no, menubar=no,toolbar=no, resizable=no, status=0';
  params += ', scrollbars=no, close=no,  alwaysOnTop=yes';
  params += ',screenX='+left+',screenY='+top;
- params+=',opacity=0.5 , z-index =150';
+ params+=',opacity=0.5 , z-index =10';
  newwin=window.open("view.html",'kk', params);
  
  var html='<body><video id="view" autoplay="true" muted="true" controls="true" style="width:100%; heigth:100%; margin-left:0px;margin-top:0px;" ><\/video> '+		
