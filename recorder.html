@@ -48,14 +48,13 @@ button:disabled {
 </head>
 <body >
       <div id="controls" style="margin-left:5%; margin-top:-20px;">
-	        Note: It works in recent version (50+) of Chrome/Mozilla browser!!! &nbsp;&nbsp;
 			<span style="color:red;" id="info">Initialise video recorder... </span> <br>
 		   <button id="init" onclick="onBtnInitialiseClicked()">Initialise Media</button>
 			<button id="rec" onclick="onBtnRecordClicked()" disabled>Start Recording(cam)</button>
 			<button id="pauseRes"   onclick="onPauseResumeClicked()" disabled>Pause</button>
 			<button id="stop"  onclick="onBtnStopClicked()" disabled>Stop</button>
 			<button id="present"  onclick="onBtnPresentClicked()" disabled >InitializeScreen</button>
-           <button id="present1"  onclick="DisplayStream()" disabled >Start Recording(Screen)</button>
+           <button id="present1"  onclick="DisplayStream()" disabled >Start Recording(screen)</button>
 			<span style="color:red;" class="stopwatch">00:00:00</span>	||		
 			<a id="downloadLink" download="mediarecorder.webm" name="mediarecorder.webm" href>Download</a>
 		</div>
