@@ -2,7 +2,7 @@
 <html>
 <head>
 <style>
-button {font-size:2vw;}
+button {font-size:1.5vw;}
 </style>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<script type="text/javascript" src="jquery.min.js"></script>
@@ -17,11 +17,11 @@ button {font-size:2vw;}
    <button onclick="txtOverlay()">TextOverlay</button>
  </div>
  
-<div id="view" style="height:400px; width:500px; resize:both; position:absolute;z-index:250; margin-top:20px;margin-left:1px;">
+<div id="view" style="height:90%;width:90%;resize:both;position:absolute;z-index:250; margin-top:2%;margin-left:1px; ">
      <video id="view1" autoplay muted controls  style="height:100%;width:100%; border:none;" > </video> 	
  </div>
- <div id="fdisplay" style="height:400px;width:500px;resize:both; z-index:150; position:absolute; margin-top:15px;margin-left:1px; ">
-  <iframe id="display1"  style="position: absolute; height: 100%;  width:100%;"
+ <div id="fdisplay" style="height:90%;width:90%;resize:both;position:absolute;z-index:150; margin-top:2%;margin-left:1px; ">
+  <iframe id="display1"  style="height: 100%;  width:100%;"
   src="_blank"   allowfullscreen="true" mozallowfullscreen="true"  webkitallowfullscreen="true">
   </iframe>
 </div>
@@ -29,7 +29,7 @@ button {font-size:2vw;}
  
   <canvas id="canvas" style="display:none;"> </canvas>
  
- <textarea id="txt" style="display:none; ">Hello... </textarea> 
+ <textarea id="txt" style="display:none; rows:200; cols:200;">Hello... </textarea> 
 
  
   <div id="url" style="background-color:rgb(204, 221, 238); display:none;">
@@ -93,13 +93,13 @@ function topView(id)
 		if (id=='view')
 		    { d.style.display = "none";
 			  v.style.display = "block";
-			 v.setAttribute("style", "height:90%;width:90%;z-index:250;position:absolute; margin-top:10px;margin-left:1px;");
+			 v.setAttribute("style", "height:90%;width:90%;z-index:250;position:absolute; margin-top:10%;margin-left:1px;");
 	          
 		    }
 		if (id=='both')
 		    { d.style.display = "block"; // d.setAttribute("style","z-index:50;position:absolute; margin-top:20px;margin-left:1px;");
 			  v.style.display = "block";
-			  v.setAttribute("style","width:100px; height:100px;z-index:250;position:absolute; margin-top:10px;margin-left:1px;"); 
+			  v.setAttribute("style","width:15%;height:15%;resize:both;z-index:250;position:absolute; overflow:hidden; margin-top:10%;margin-left:-5px;"); 
 		    } //background-color: transparent;
 	 }
 //.........................................................................
@@ -107,9 +107,8 @@ var txtOver=document.getElementById("txt");
  function txtOverlay()
  { 
  canvas.setAttribute("style", "display:none;");
- txtOver.setAttribute("style",
-  "display:block; position:absolute; margin-top:30px;margin-left:30px;"+
-  "rows=100; cols=100; background:transparent;z-index:320;color:red; font-size:5vw;font-weight:bold;");
+ txtOver.setAttribute("style", "display:block; position:absolute; margin-top:2%;margin-left:-1px;"+
+ " background:transparent; z-index:310;color:red; font-size:3vw;font-weight: bold;");
  
  }
  //...................................................................................
@@ -123,12 +122,11 @@ canvas = document.getElementById("canvas");
     painting = false;
     lastX = 0;  lastY = 0
     lineThickness = 2;
-	canvas.width = canvas.height = 600;
+	canvas.width =screen.availWidth; canvas.height = 600;
 function draw()
-{  canvas.setAttribute("style",
-  "display:block; position:absolute; margin-top:10px;margin-left:10px;"+
+{  canvas.setAttribute("style","display:block; position:absolute; margin-top:10px;margin-left:1px;"+
   "background:transparent;z-index:320;");
-  txtOver.setAttribute("style","display:none;");
+  //txtOver.setAttribute("style","display:none;");
  }
 canvas.onmousedown = function(e)
  {
