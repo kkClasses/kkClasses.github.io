@@ -50,20 +50,20 @@ button:disabled {
       <div id="controls" style="margin-left:2%; margin-top:-20px;">
 			
 						
-			<a id="downloadLink" download="mediarecorder.webm" name="mediarecorder.webm" href></a>
+		<a id="downloadLink" download="mediarecorder.webm" name="mediarecorder.webm" href></a>	
 		<br>
 		   <button id="init" onclick="onBtnInitialiseClicked()">Initialise Media</button>
-			<button id="rec" onclick="onBtnRecordClicked()" disabled>Record(cam)</button>
+			<button id="rec" onclick="onBtnRecordClicked()" disabled>Record(Cam)</button>
 			<button id="pauseRes"   onclick="onPauseResumeClicked()" disabled>Pause</button>
 			<button id="stop"  onclick="onBtnStopClicked()" disabled>Stop</button>
 			<button id="present"  onclick="onBtnPresentClicked()" disabled >InitializeScreen</button>
-           <button id="present1"  onclick="DisplayStream()" disabled >Record(screen)</button>
+           <button id="present1"  onclick="DisplayStream()" disabled >Record(Screen)</button>
 			<span style="color:red;" class="stopwatch">00:00:00</span>
 			</div>
 		<video id="recording" autoplay muted controls></video>
         <video id="screen" autoplay muted controls style="display:none;"></video> 		
 		<video id="recorded" controls style="display:none;" ></video>
-	<br><span style="color:red;" id="info">Initialise video recorder... </span>
+	 <br><span style="color:red;" id="info">Initialise video recorder... </span>
 	<p id="data"></p>
 	
 <script type="text/javascript">
