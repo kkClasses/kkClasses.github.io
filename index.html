@@ -245,9 +245,11 @@ function onBtnPresentClicked()
 	   pauseResBtn.disabled = false; stopBtn.disabled = false;
 	    recBtn.disabled = true; presentBtn.disabled = true;
 		chunks=[]; 
+	  
       navigator.mediaDevices.getDisplayMedia( 
-          { video: true
-	       //,audio:true
+          { video: {  "aspectRatio": 1.7,"deviceId": "screen:0:0","frameRate": 3,// "height":540,"width": 900,// "resizeMode": "crop-and-scale",
+			             	"cursor": "always", "logicalSurface": true  },
+	       audio:false
 		   }).then(stream1 => {               
 			mediaStream = new MediaStream([stream1.getVideoTracks()[0], AudioTrack]);			
 			screen.srcObject = mediaStream;
