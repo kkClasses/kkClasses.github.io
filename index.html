@@ -111,8 +111,8 @@ function onBtnInitialiseClicked()
 				// VideoTrack = videoElement.captureStream().getVideoTracks()[0];
                   
 				 kkStream = stream;
-				// magnifyVolume();
-				//AudioTrack = kkStream.getAudioTracks()[1];//amplified audio track
+				magnifyVolume();
+				AudioTrack = kkStream.getAudioTracks()[1];//amplified audio track
 				kkStream = new MediaStream([VideoTrack, AudioTrack]);
 				videoElement.srcObject = kkStream;
 				// kkStream=videoElement.captureStream();// method makes it possible to capture a MediaStream from a <canvas>, <audio> or <video> element.
