@@ -67,10 +67,9 @@ button:disabled {
 	<p id="data"></p>
 	
 <script type="text/javascript">
-var constraints = { audio:true,
-                   video: true//{//width:{min:320,ideal:320,max:640 },
-				           //height:{ min:240,ideal:240,max:480},
-						  // framerate:30   }
+var constraints = { //audio:true, video:{{width:{min:320,ideal:320,max:640 },height:{ min:240,ideal:240,max:480}, framerate:10   }
+					 audio: {sampleRate: 44000,  channelCount: 1, volume: 1.0,echoCancellation: true },
+                    video: { width:{min:320,ideal:320,max:640 },height:{ min:240,ideal:240,max:480},framerate:6
 				  };
 
 var recBtn = document.querySelector('button#rec');
@@ -109,11 +108,11 @@ function onBtnInitialiseClicked()
 				videoElement.srcObject = stream;
 				 AudioTrack = stream.getAudioTracks()[0];
 			     VideoTrack = stream.getVideoTracks()[0];
-				 // VideoTrack = videoElement.captureStream().getVideoTracks()[0];
+				 VideoTrack = videoElement.captureStream().getVideoTracks()[0];
                   
 				 kkStream = stream;
-				 magnifyVolume();
-				AudioTrack = kkStream.getAudioTracks()[1];//amplified audio track
+				// magnifyVolume();
+				//AudioTrack = kkStream.getAudioTracks()[1];//amplified audio track
 				kkStream = new MediaStream([VideoTrack, AudioTrack]);
 				videoElement.srcObject = kkStream;
 				// kkStream=videoElement.captureStream();// method makes it possible to capture a MediaStream from a <canvas>, <audio> or <video> element.
