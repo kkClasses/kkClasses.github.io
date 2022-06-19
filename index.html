@@ -69,7 +69,7 @@ button:disabled {
 <script type="text/javascript">
 var constraints = { //audio:true, video:{{width:{min:320,ideal:320,max:640 },height:{ min:240,ideal:240,max:480}, framerate:10   }
 					 audio: {sampleRate: 44000,  channelCount: 1, volume: 1.0,echoCancellation: true },
-                    video: { width:{min:320,ideal:320,max:640 },height:{ min:240,ideal:240,max:480},framerate:6 }
+                    video: { width:{min:320,ideal:320,max:640 },height:{ min:240,ideal:240,max:480},frameRate:6 }
 				};
 
 var recBtn = document.querySelector('button#rec');
@@ -91,7 +91,7 @@ var count = 0;   var i=0; var j=0;
 var blob; var which=1; //1  camear, 2 for scree
 var soundMeter  = null;
 let mediaStream=null;
-var options = {mimeType: 'video/webm;codecs="vp8,opus"'};
+var options = {mimeType: 'video/webm;codecs:vp9'};
 let desktopStream=new MediaStream();
 let kkStream = new MediaStream();   //localStream
 let AudioTrack;
@@ -246,7 +246,7 @@ function onBtnPresentClicked()
 		chunks=[]; 
 	  
       navigator.mediaDevices.getDisplayMedia( 
-          { video: {  "aspectRatio": 1.7,"deviceId": "screen:0:0","frameRate": 3,// "height":540,"width": 900,// "resizeMode": "crop-and-scale",
+          { video: {  "aspectRatio": 1.7,"deviceId": "screen:0:0","frameRate": 5,// "height":540,"width": 900,// "resizeMode": "crop-and-scale",
 			             	"cursor": "always", "logicalSurface": true  },
 	       audio:false
 		   }).then(stream1 => {               
