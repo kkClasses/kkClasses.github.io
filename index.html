@@ -91,7 +91,7 @@ var count = 0;   var i=0; var j=0;
 var blob; var which=1; //1  camear, 2 for scree
 var soundMeter  = null;
 let mediaStream=null;
-var options = {mimeType: 'video/webm;codecs:vp9'};
+var options = {mimeType: 'video/webm;codecs="vp8,opus"'};
 let desktopStream=new MediaStream();
 let kkStream = new MediaStream();   //localStream
 let AudioTrack;
@@ -148,7 +148,7 @@ function onBtnRecordClicked ()
 	    videoElement.play();
        mediaRecorder = new MediaRecorder(kkStream, options);
         RecordCam();
-	    mediaRecorder.start(30);   
+	    mediaRecorder.start(1000);   
 		stopwatch.restart();
 		
 	 }
